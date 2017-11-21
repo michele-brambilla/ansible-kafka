@@ -1,0 +1,10 @@
+[Unit]
+Description=Run zookeeper broker
+After=network.target
+
+
+[Service]
+Type=forking
+ExecStart={{kafka_home}}/bin/zookeeper-server-start.sh -daemon {{kafka_home}}/config/zookeeper.properties
+ExecStop={{kafka_home}}/bin/zookeeper-server-stop.sh
+SuccessExitStatus=143

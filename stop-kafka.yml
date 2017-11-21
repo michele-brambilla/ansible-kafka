@@ -1,0 +1,29 @@
+---
+
+- hosts: kafka_brokers
+  tasks:
+    - name: Make sure that the service files are installed
+      stat:
+        path: /usr/lib/systemd/system/{{ item }}
+      with_items:
+        - kafka.service
+        - zookeeper.service
+      register: kafka_present
+
+    - name: Services not installed, abort play
+      meta: end_play
+      when: 
+        - not kafka_present["results"][0]["stat"]["exists"]
+        - not kafka_present["results"][1]["stat"]["exists"]
+
+    - name: Stop services
+      become: yes
+      service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - kafka
+        - zookeeper
+      when: 
+        - kafka_present["results"][0]["stat"]["exists"]
+        - kafka_present["results"][1]["stat"]["exists"]
